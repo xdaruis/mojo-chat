@@ -6,5 +6,6 @@ app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
 
 app.get('/').to('example#welcome');
+app.websocket('/api/chat/message').to('chat#onMessage');
 
 app.start();
