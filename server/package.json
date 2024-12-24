@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@mojojs/core": "^1.26.9"
+  },
+  "type": "module",
+  "devDependencies": {
+    "nodemon": "^3.0.0",
+    "tap": "^21.0.1"
+  },
+  "scripts": {
+    "dev": "npx nodemon index.js server -l http://*:8086",
+    "start": "NODE_ENV=production node index.js server -l http://*:8086",
+    "test": "node --test test/*.js"
+  }
+}
