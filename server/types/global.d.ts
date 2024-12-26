@@ -1,5 +1,5 @@
-import { WebSocket } from '@mojojs/core/lib/websocket';
 import { MojoContext } from '@mojojs/core';
+import { WebSocket } from '@mojojs/core/lib/websocket';
 
 declare module '@mojojs/core/lib/app' {
   interface App {
