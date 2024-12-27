@@ -4,8 +4,11 @@ export const app = mojo();
 
 app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
+app.clients = new Map();
+app.idCounter = 0;
 
-app.get('/').to('example#welcome');
-app.websocket('/api/chat/message').to('chat#onMessage');
+// == Chat Routes ==
+app.websocket('/api/chat/connect').to('chat#onConnect');
+app.get('/api/chat/health').to('chat#healthCheck');
 
 app.start();
