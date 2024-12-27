@@ -4,3 +4,6 @@ format:
 
 lint:
 	npm run tsc
+
+test:
+	cd server && npm run test
