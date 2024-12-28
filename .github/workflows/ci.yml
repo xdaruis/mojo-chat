@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  pull_request_review:
+    types: [submitted]
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    if: ${{ (github.event.review.state == 'approved') || (github.ref == 'refs/heads/main')}}
+    name: Node ${{ matrix.node-version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20.x, 21.x, 22.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Rebuild
+        run: make rebuild
+      - name: Run tests
+        run: make test
+      - name: Lint
+        run: make lint
+      - name: Check formatting
+        run: |
+          git diff > pre_format.diff
+          make format
+          git diff > post_format.diff
+          node -e "
+            const fs = require('node:fs');
+            const pre = fs.readFileSync('pre_format.diff', 'utf8');
+            const post = fs.readFileSync('post_format.diff', 'utf8');
+            if (pre !== post) {
+              console.log('::error::Formatter made changes to files. Please fix formatting issues and commit again.');
+              process.exit(1);
+            }
+          "

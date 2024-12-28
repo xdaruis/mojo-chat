@@ -13,6 +13,6 @@
     "format": "prettier --write .",
     "dev": "npx nodemon index.js server -l http://*:8086",
     "start": "NODE_ENV=production node index.js server -l http://*:8086",
-    "test": "node --test test/*.js"
+    "test": "tap --allow-incomplete-coverage --jobs=1 \"test/*.js\""
   }
 }

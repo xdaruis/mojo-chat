@@ -113,9 +113,9 @@ await t.test('onConnect', async (t) => {
 });
 
 await t.test('healthCheck', async (t) => {
+  const ua = await app.newTestUserAgent({ tap: t });
   await t.test('Should show status 204 and empty body', async () => {
-    const ua = await app.newTestUserAgent({ tap: t });
     (await ua.getOk('/api/chat/healthcheck')).statusIs(204).bodyIs('');
-    await ua.stop();
   });
+  await ua.stop();
 });

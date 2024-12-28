@@ -1,3 +1,6 @@
+rebuild:
+	npm ci && cd client && npm ci && npm run build && cd .. && cd server && npm ci
+
 format:
 	cd client && npm run format && cd .. && cd server && npm run format
 
