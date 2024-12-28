@@ -11,6 +11,9 @@ app.idCounter = 0;
 app.websocket('/api/chat/connect').to('chat#onConnect');
 app.get('/api/chat/healthcheck').to('chat#healthCheck');
 
+// == Download Routes ==
+app.get('/*').to('download#serveReact');
+
 app
   .start()
   .then(() => {
