@@ -1,6 +1,6 @@
 import mojo, { yamlConfigPlugin } from '@mojojs/core';
 
-export const app = mojo();
+export const app = mojo({ exceptionFormat: 'json' });
 
 app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
