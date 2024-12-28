@@ -39,7 +39,10 @@ export default class ChatController {
 
       ws.on('message', (/** @type {string} */ data) => {
         // TODO: Add ability for each user to set a unique nickname
-        assert(typeof data === 'string', 'data should be a string');
+        assert(
+          typeof data === 'string',
+          'ws on message data should be a string',
+        );
         const userId = ctx.app.clients.get(ws);
         this._broadcast(ctx, {
           user: userId?.toString() ?? 'Unknown',
