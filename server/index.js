@@ -9,6 +9,13 @@ app.idCounter = 0;
 
 // == Chat Routes ==
 app.websocket('/api/chat/connect').to('chat#onConnect');
-app.get('/api/chat/health').to('chat#healthCheck');
+app.get('/api/chat/healthcheck').to('chat#healthCheck');
 
-app.start();
+app
+  .start()
+  .then(() => {
+    app.log.info('Server successfully started!');
+  })
+  .catch((error) => {
+    app.log.error(`Server failed to start: ${error}`);
+  });

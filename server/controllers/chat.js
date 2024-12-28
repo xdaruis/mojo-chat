@@ -1,19 +1,15 @@
+import assert from 'node:assert';
+
 export default class ChatController {
   /**
    * @param {MojoCtx} ctx
    * @param {ChatMessage} message
    */
   _broadcast(ctx, message) {
+    const serializedMessage = JSON.stringify(message);
     for (const [client] of ctx.app.clients) {
-      client.send(JSON.stringify(message));
+      client.send(serializedMessage);
     }
-  }
-
-  /**
-   * @param {MojoCtx} ctx
-   */
-  healthCheck(ctx) {
-    ctx.res.status(204).send();
   }
 
   /**
@@ -41,8 +37,9 @@ export default class ChatController {
         });
       });
 
-      ws.on('message', (data) => {
+      ws.on('message', (/** @type {string} */ data) => {
         // TODO: Add ability for each user to set a unique nickname
+        assert(typeof data === 'string', 'data should be a string');
         const userId = ctx.app.clients.get(ws);
         this._broadcast(ctx, {
           user: userId?.toString() ?? 'Unknown',
@@ -50,5 +47,12 @@ export default class ChatController {
         });
       });
     });
+  }
+
+  /**
+   * @param {MojoCtx} ctx
+   */
+  healthCheck(ctx) {
+    ctx.res.status(204).send();
   }
 }
