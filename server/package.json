@@ -1,8 +1,11 @@
 {
+  "name": "server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "dependencies": {
     "@mojojs/core": "^1.26.9"
   },
-  "type": "module",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.0",
     "nodemon": "^3.0.0",
