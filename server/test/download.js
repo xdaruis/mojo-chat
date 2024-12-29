@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import t from 'tap';
 
 import { app } from '../index.js';
@@ -11,7 +10,7 @@ await t.test('serveReact', async (t) => {
 
   // Read and parse index.html to get current asset filenames
   const indexHtml = readFileSync(
-    join(process.cwd(), '../client/dist/index.html'),
+    app.home.child('../client/dist/index.html').toString(),
     'utf-8',
   );
   const cssFile = indexHtml.match(/href="\/assets\/(index-.*?\.css)"/)?.[1];
@@ -19,11 +18,11 @@ await t.test('serveReact', async (t) => {
 
   // Read the actual files
   const expectedCss = readFileSync(
-    join(process.cwd(), '../client/dist/assets', cssFile),
+    app.home.child('../client/dist/assets', cssFile).toString(),
     'utf-8',
   );
   const expectedJs = readFileSync(
-    join(process.cwd(), '../client/dist/assets', jsFile),
+    app.home.child('../client/dist/assets', jsFile).toString(),
     'utf-8',
   );
 

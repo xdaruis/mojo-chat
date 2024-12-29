@@ -14,7 +14,7 @@ export default class DownloadController {
         return;
       }
     } catch (error) {
-      // default to index.html
+      // defaults to index.html
     }
 
     await ctx.sendFile(ctx.home.child('../client/dist/index.html'));
