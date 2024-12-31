@@ -1,5 +1,5 @@
 all:
-	make rebuild && make format && make lint && make test
+	make format && make rebuild && make lint && make test
 
 rebuild:
 	npm ci && cd client && npm ci && npm run build && cd .. && cd server && npm ci

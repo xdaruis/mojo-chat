@@ -1,17 +1,7 @@
 import assert from 'node:assert';
+import * as ChatHelper from '../helpers/chat.js';
 
 export default class ChatController {
-  /**
-   * @param {MojoCtx} ctx
-   * @param {ChatMessage} message
-   */
-  _broadcast(ctx, message) {
-    const serializedMessage = JSON.stringify(message);
-    for (const [client] of ctx.app.clients) {
-      client.send(serializedMessage);
-    }
-  }
-
   /**
    * @param {MojoCtx} ctx
    */
@@ -19,17 +9,21 @@ export default class ChatController {
     ctx.on('connection', (/** @type {MojoWs} */ ws) => {
       ++ctx.app.idCounter;
       ctx.app.clients.set(ws, ctx.app.idCounter);
-      this._broadcast(ctx, {
+
+      ChatHelper.broadcastToClients(ctx, {
         user: 'system',
         content:
           `User ${ctx.app.idCounter} connected to the chat. ` +
           `${ctx.app.clients.size} users connected.`,
       });
 
-      ws.on('close', () => {
+      ws.on('close', async () => {
+        const session = await ctx.session();
+        console.log(`----------session: ${session}`);
         const userId = ctx.app.clients.get(ws);
         ctx.app.clients.delete(ws);
-        this._broadcast(ctx, {
+
+        ChatHelper.broadcastToClients(ctx, {
           user: 'system',
           content:
             `User ${userId} disconnected from the chat. ` +
@@ -44,7 +38,7 @@ export default class ChatController {
           'ws on message data should be a string',
         );
         const userId = ctx.app.clients.get(ws);
-        this._broadcast(ctx, {
+        ChatHelper.broadcastToClients(ctx, {
           user: userId?.toString() ?? 'Unknown',
           content: data,
         });
