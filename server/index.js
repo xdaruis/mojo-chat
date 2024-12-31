@@ -12,7 +12,7 @@ app.websocket('/api/chat/connect').to('chat#onConnect');
 app.get('/api/chat/healthcheck').to('chat#healthCheck');
 
 // == Download Routes ==
-app.get('/*').to('download#serveReact');
+app.get('/*').to('download#serveClient');
 
 app
   .start()
@@ -20,5 +20,5 @@ app
     app.log.info('Server successfully started!');
   })
   .catch((error) => {
-    app.log.error(`Server failed to start: ${error}`);
+    app.log.error(`Server failed to start: ${error.message}\n${error.stack}`);
   });

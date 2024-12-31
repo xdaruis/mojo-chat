@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+
 import * as ChatHelper from '../helpers/chat.js';
 
 export default class ChatController {
