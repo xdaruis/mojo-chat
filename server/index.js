@@ -5,7 +5,13 @@ export const app = mojo({ exceptionFormat: 'json' });
 app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
 app.clients = new Map();
+app.users = new Set();
 app.idCounter = 0;
+
+// == User Routes ==
+app.post('/api/user/login').to('user#onLogin');
+app.post('/api/user/logout').to('user#onLogout');
+app.post('/api/user/session').to('user#getSession');
 
 // == Chat Routes ==
 app.websocket('/api/chat/connect').to('chat#onConnect');

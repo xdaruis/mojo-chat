@@ -5,7 +5,7 @@ import { app } from '../index.js';
 
 app.log.level = 'debug';
 
-await t.test('serveReact', async (t) => {
+await t.test('serveClient', async (t) => {
   const ua = await app.newTestUserAgent({ tap: t });
 
   // Read and parse index.html to get current asset filenames
