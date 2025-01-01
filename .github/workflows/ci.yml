@@ -20,6 +20,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Create config.yml
+        run: |
+          node -e "
+            import('node:fs').then((fs) => 
+              fs.writeFileSync(
+                'server/config.yml',
+                '---\nsecrets:\n  - ' + Buffer.from(crypto.randomBytes(16)).toString('hex')
+              )
+            )
+          "
       - name: Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
