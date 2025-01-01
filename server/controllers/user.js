@@ -1,5 +1,3 @@
-import assert from 'node:assert';
-
 import * as UserHelper from '../helpers/user.js';
 import * as UserValidator from '../helpers/validators/user.js';
 
@@ -10,25 +8,23 @@ export default class UserController {
   async onLogin(ctx) {
     /** @type {{ username: string }} */
     const { username } = await ctx.req.json();
+    let session = await ctx.session();
 
-    assert(username, 'Username is required');
-    assert(typeof username === 'string', 'Username must be a string');
+    await ctx.validate(!!username, 'Username is required');
+    await ctx.validate(
+      typeof username === 'string',
+      'Username must be a string',
+    );
+    await ctx.validate(
+      !ctx.app.users.has(username) && session.username === undefined,
+      'User already connected',
+    );
+    await ctx.validate(
+      UserValidator.isValidUsername(username),
+      'The username is not valid',
+    );
 
-    if (ctx.app.users.has(username)) {
-      return ctx.render({
-        json: { error: 'User already connected' },
-        status: 400,
-      });
-    }
-
-    if (!UserValidator.isValidUsername(username)) {
-      return ctx.render({
-        json: { error: 'Invalid username' },
-        status: 400,
-      });
-    }
-
-    const session = await UserHelper.setSession(ctx, username);
+    session = await UserHelper.setSession(ctx, username);
 
     return ctx.render({ json: { session } });
   }
