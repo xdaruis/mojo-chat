@@ -1,15 +1,18 @@
 import assert from 'node:assert';
 
 import * as ChatHelper from '../helpers/chat.js';
+import { deleteSession } from '../helpers/user.js';
 
 export default class ChatController {
   /**
    * @param {MojoCtx} ctx
    */
   async onConnect(ctx) {
+    const session = await ctx.session();
+
     ctx.on('connection', (/** @type {MojoWs} */ ws) => {
       ++ctx.app.idCounter;
-      ctx.app.clients.set(ws, ctx.app.idCounter);
+      ctx.app.clients.set(ws, session.username || String(ctx.app.idCounter));
 
       ChatHelper.broadcastToClients(ctx, {
         user: 'system',
@@ -19,10 +22,9 @@ export default class ChatController {
       });
 
       ws.on('close', async () => {
-        const session = await ctx.session();
-        console.log(`----------session: ${session}`);
         const userId = ctx.app.clients.get(ws);
         ctx.app.clients.delete(ws);
+        await deleteSession(ctx);
 
         ChatHelper.broadcastToClients(ctx, {
           user: 'system',
@@ -51,6 +53,6 @@ export default class ChatController {
    * @param {MojoCtx} ctx
    */
   healthCheck(ctx) {
-    ctx.res.status(204).send();
+    return ctx.res.status(204).send();
   }
 }

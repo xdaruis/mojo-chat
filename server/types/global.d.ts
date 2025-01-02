@@ -11,7 +11,7 @@ declare module '@mojojs/core/lib/types' {
 
 declare module '@mojojs/core/lib/app' {
   interface App {
-    clients: Map<WebSocket, number>;
+    clients: Map<WebSocket, string>;
     idCounter: number;
     users: Set<string>;
   }
