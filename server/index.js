@@ -1,6 +1,6 @@
 import mojo, { yamlConfigPlugin } from '@mojojs/core';
 
-import * as AppHelpers from './helpers/index.js';
+import * as AppHelper from './helpers/index.js';
 
 export const app = mojo({ exceptionFormat: 'json' });
 
@@ -9,8 +9,8 @@ app.secrets = app.config.secrets;
 
 app.users = new Set();
 
-app.addHelper('validate', AppHelpers.validate);
-app.addHelper('parsedJsonRequest', AppHelpers.parsedJsonRequest);
+app.addHelper('validate', AppHelper.validate);
+app.addHelper('parsedJsonRequest', AppHelper.parsedJsonRequest);
 
 // == User Routes ==
 app.post('/api/user/login').to('user#onLogin');

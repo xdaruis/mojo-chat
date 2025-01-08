@@ -1,4 +1,4 @@
-import * as UserSchemas from '../helpers/schemas/user.js';
+import * as UserSchema from '../helpers/schemas/user.js';
 import * as UserHelper from '../helpers/user.js';
 
 export default class UserController {
@@ -6,7 +6,7 @@ export default class UserController {
    * @param {MojoCtx} ctx
    */
   async onLogin(ctx) {
-    const payload = await ctx.parsedJsonRequest(UserSchemas.onLogin);
+    const payload = await ctx.parsedJsonRequest(UserSchema.onLogin);
 
     if (!payload) return;
     const { username } = payload;
