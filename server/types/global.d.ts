@@ -12,8 +12,6 @@ declare module '@mojojs/core/lib/types' {
 
 declare module '@mojojs/core/lib/app' {
   interface App {
-    clients: Map<WebSocket, string>;
-    idCounter: number;
     users: Set<string>;
   }
 }
@@ -35,4 +33,5 @@ declare global {
     user: 'system' | string;
     content: string;
   };
+  type Clients = Map<MojoWs, string>;
 }

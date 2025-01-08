@@ -6,9 +6,8 @@ export const app = mojo({ exceptionFormat: 'json' });
 
 app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
-app.clients = new Map();
+
 app.users = new Set();
-app.idCounter = 0;
 
 app.addHelper('validate', AppHelpers.validate);
 app.addHelper('parsedJsonRequest', AppHelpers.parsedJsonRequest);
