@@ -11,6 +11,7 @@ app.users = new Set();
 app.idCounter = 0;
 
 app.addHelper('validate', AppHelpers.validate);
+app.addHelper('parsedJsonRequest', AppHelpers.parsedJsonRequest);
 
 // == User Routes ==
 app.post('/api/user/login').to('user#onLogin');

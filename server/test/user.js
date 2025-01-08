@@ -66,7 +66,7 @@ await t.test('onLogin', async (t) => {
 
     // Invalid username format
     const resInvalidFormat = await ua.post('/api/user/login', {
-      json: { username: 'a b' }, // contains space
+      json: { username: 'a b a b' }, // contains space
     });
     t.equal(
       resInvalidFormat.statusCode,
@@ -74,27 +74,19 @@ await t.test('onLogin', async (t) => {
       'should fail with invalid username format',
     );
     resJson = await resInvalidFormat.json();
-    t.strictSame(
-      resJson,
-      { error: 'The username is not valid' },
-      'should return correct error message',
-    );
+    t.strictSame(resJson, {
+      error:
+        'Username can only contain letters, numbers, underscores, ' +
+        'and dashes',
+    });
 
     // Username too short
     const resTooShort = await ua.post('/api/user/login', {
       json: { username: 'ab' },
     });
-    t.equal(
-      resTooShort.statusCode,
-      400,
-      'should fail when username is too short',
-    );
+    t.equal(resTooShort.statusCode, 400);
     resJson = await resTooShort.json();
-    t.strictSame(
-      resJson,
-      { error: 'The username is not valid' },
-      'should return correct error message',
-    );
+    t.strictSame(resJson, { error: 'Username must be at least 4 characters' });
 
     // username too long
     const resTooLong = await ua.post('/api/user/login', {
@@ -106,27 +98,19 @@ await t.test('onLogin', async (t) => {
       400,
       'should fail when username is too long',
     );
-    t.strictSame(
-      resJson,
-      { error: 'The username is not valid' },
-      'should return correct error message',
-    );
+    t.strictSame(resJson, { error: 'Username must be at most 15 characters' });
 
     // username contains cyrilic characters
     const resCyrilic = await ua.post('/api/user/login', {
       json: { username: 'привет123' },
     });
-    t.equal(
-      resCyrilic.statusCode,
-      400,
-      'should fail when username contains cyrilic characters',
-    );
+    t.equal(resCyrilic.statusCode, 400);
     resJson = await resCyrilic.json();
-    t.strictSame(
-      resJson,
-      { error: 'The username is not valid' },
-      'should return correct error message',
-    );
+    t.strictSame(resJson, {
+      error:
+        'Username can only contain letters, numbers, underscores, ' +
+        'and dashes',
+    });
   });
 
   await t.test('duplicate username', async (t) => {
@@ -166,6 +150,18 @@ await t.test('onLogin', async (t) => {
       { error: 'User already connected' },
       'should return correct error message',
     );
+  });
+
+  await t.test('should not allow extra fields in request', async (t) => {
+    const res = await ua.post('/api/user/login', {
+      json: { username: 'test123', extra: 'extra' },
+    });
+
+    t.equal(res.statusCode, 400, 'should return 400 status');
+    const resJson = await res.json();
+    t.strictSame(resJson, {
+      error: "Unrecognized key(s) in object: 'extra'",
+    });
   });
 });
 

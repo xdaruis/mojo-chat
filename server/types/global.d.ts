@@ -2,6 +2,7 @@ import { MojoContext } from '@mojojs/core';
 import { SessionData } from '@mojojs/core/lib/types.js';
 import { WebSocket } from '@mojojs/core/lib/websocket';
 import { AssertionError } from 'node:assert';
+import { z } from 'zod';
 
 declare module '@mojojs/core/lib/types' {
   interface SessionData {
@@ -28,6 +29,7 @@ declare global {
      * @throws {AssertionError}
      */
     validate(condition: boolean, message: string): Promise<void>;
+    parsedJsonRequest<T>(schema: z.ZodSchema<T>): Promise<T> | null;
   };
   type ChatMessage = {
     user: 'system' | string;
