@@ -1,6 +1,6 @@
 export default class DownloadController {
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   async serveClient(ctx) {
     const uri = ctx.req.url?.split('?')[0] ?? '/';

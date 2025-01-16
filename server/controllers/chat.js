@@ -9,7 +9,7 @@ let _idCounter = 0;
 
 export default class ChatController {
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   async onConnect(ctx) {
     const session = await ctx.session();
@@ -54,7 +54,7 @@ export default class ChatController {
   }
 
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   healthCheck(ctx) {
     return ctx.res.status(204).send();

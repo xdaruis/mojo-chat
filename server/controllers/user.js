@@ -3,7 +3,7 @@ import * as UserHelper from '../helpers/user.js';
 
 export default class UserController {
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   async onLogin(ctx) {
     const payload = await ctx.parsedJsonRequest(UserSchema.onLogin);
@@ -13,10 +13,14 @@ export default class UserController {
 
     let session = await ctx.session();
 
-    await ctx.validate(
-      !ctx.app.users.has(username) && session.username === undefined,
-      'User already connected',
-    );
+    if (
+      !(await ctx.validate(
+        !ctx.app.users.has(username) && session.username === undefined,
+        'User already connected',
+      ))
+    ) {
+      return;
+    }
 
     session = await UserHelper.setSession(ctx, username);
 
@@ -24,7 +28,7 @@ export default class UserController {
   }
 
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   async onLogout(ctx) {
     await UserHelper.deleteSession(ctx);
@@ -37,7 +41,7 @@ export default class UserController {
   }
 
   /**
-   * @param {MojoCtx} ctx
+   * @param {MojoContext} ctx
    */
   async getSession(ctx) {
     const session = await ctx.session();

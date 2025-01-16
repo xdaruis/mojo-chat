@@ -1,5 +1,5 @@
 /**
- * @param {MojoCtx} ctx
+ * @param {MojoContext} ctx
  * @param {string} username
  */
 export async function setSession(ctx, username) {
@@ -11,7 +11,7 @@ export async function setSession(ctx, username) {
 }
 
 /**
- * @param {MojoCtx} ctx
+ * @param {MojoContext} ctx
  */
 export async function deleteSession(ctx) {
   const session = await ctx.session();

@@ -1,4 +1,5 @@
 import { MojoContext } from '@mojojs/core';
+import { App } from '@mojojs/core/lib/app';
 import { SessionData } from '@mojojs/core/lib/types.js';
 import { WebSocket } from '@mojojs/core/lib/websocket';
 import { AssertionError } from 'node:assert';
@@ -16,19 +17,17 @@ declare module '@mojojs/core/lib/app' {
   }
 }
 
-declare global {
-  type MojoWs = WebSocket;
-  type MojoCtx = MojoContext & {
-    /**
-     * TODO: Find a way to not log the assertion error
-     *
-     * Renders a JSON response with a 400 status code and an error message.
-     * Throws an error if the condition is not met.
-     * @throws {AssertionError}
-     */
-    validate(condition: boolean, message: string): Promise<void>;
+declare module '@mojojs/core' {
+  interface MojoContext {
+    validate(condition: boolean, message: string): Promise<boolean>;
     parsedJsonRequest<T>(schema: z.ZodSchema<T>): Promise<T> | null;
-  };
+  }
+}
+
+declare global {
+  type MojoContext = import('@mojojs/core').MojoContext;
+  type MojoWs = WebSocket;
+
   type ChatMessage = {
     user: 'system' | string;
     content: string;
