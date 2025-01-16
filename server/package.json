@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.0",
+    "@types/node": "^22.10.7",
     "nodemon": "^3.0.0",
     "prettier": "^3.4.2",
     "tap": "^21.0.1"
@@ -17,6 +18,7 @@
     "format": "prettier --write .",
     "dev": "npx nodemon index.js server -l http://*:8086",
     "start": "NODE_ENV=production node index.js server -l http://*:8086",
-    "test": "tap --allow-incomplete-coverage --jobs=1 \"test/*.js\""
+    "test": "tap --allow-incomplete-coverage --jobs=1 \"test/*.js\"",
+    "tsc": "tsc --noEmit"
   }
 }
