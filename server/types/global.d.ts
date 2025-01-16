@@ -1,9 +1,18 @@
-import { MojoContext } from '@mojojs/core';
-import { App } from '@mojojs/core/lib/app';
-import { SessionData } from '@mojojs/core/lib/types.js';
+import { MojoContext as BaseMojoContext } from '@mojojs/core';
 import { WebSocket } from '@mojojs/core/lib/websocket';
-import { AssertionError } from 'node:assert';
 import { z } from 'zod';
+
+declare global {
+  type MojoContext = BaseMojoContext;
+  type MojoWs = WebSocket;
+
+  type ChatMessage = {
+    user: 'system' | string;
+    content: string;
+  };
+
+  type Clients = Map<MojoWs, string>;
+}
 
 declare module '@mojojs/core/lib/types' {
   interface SessionData {
@@ -22,15 +31,4 @@ declare module '@mojojs/core' {
     validate(condition: boolean, message: string): Promise<boolean>;
     parsedJsonRequest<T>(schema: z.ZodSchema<T>): Promise<T> | null;
   }
-}
-
-declare global {
-  type MojoContext = import('@mojojs/core').MojoContext;
-  type MojoWs = WebSocket;
-
-  type ChatMessage = {
-    user: 'system' | string;
-    content: string;
-  };
-  type Clients = Map<MojoWs, string>;
 }
