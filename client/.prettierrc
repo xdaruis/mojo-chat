@@ -10,7 +10,12 @@
   "trailingComma": "all",
   "useTabs": false,
   "endOfLine": "auto",
-  "importOrder": ["<THIRD_PARTY_MODULES>", "^components/(.*)$", "^[./]"],
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^components/(.*)$",
+    "^pages/(.*)$",
+    "^[./]"
+  ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "plugins": ["@trivago/prettier-plugin-sort-imports"]
