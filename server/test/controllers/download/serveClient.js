@@ -10,27 +10,20 @@ const indexHtml = readFileSync(
   app.home.child('../client/dist/index.html').toString(),
   'utf-8',
 );
-const cssFile = indexHtml.match(/href="\/assets\/(index-.*?\.css)"/)?.[1];
-const jsFile = indexHtml.match(/src="\/assets\/(index-.*?\.js)"/)?.[1];
 
-// Read the actual files
-const expectedCss = readFileSync(
-  app.home.child('../client/dist/assets', cssFile).toString(),
-  'utf-8',
-);
-const expectedJs = readFileSync(
-  app.home.child('../client/dist/assets', jsFile).toString(),
-  'utf-8',
-);
-
-await t.test('should serve CSS file from assets', async () => {
-  const response = await ua.get(`/assets/${cssFile}`);
-  t.equal(response.statusCode, 200);
-  t.equal(response.type, 'text/css');
-  t.equal(await response.text(), expectedCss);
+await t.test('should not have CSS file', async () => {
+  const cssFile = indexHtml.match(/href="\/assets\/(index-.*?\.css)"/)?.[1];
+  t.equal(cssFile, undefined, 'should not have CSS file reference');
 });
 
 await t.test('should serve JS file from assets', async () => {
+  const jsFile = indexHtml.match(/src="\/assets\/(index-.*?\.js)"/)?.[1];
+  // Read the actual files
+  const expectedJs = readFileSync(
+    app.home.child('../client/dist/assets', jsFile).toString(),
+    'utf-8',
+  );
+
   const response = await ua.get(`/assets/${jsFile}`);
   t.equal(response.statusCode, 200);
   t.equal(response.type, 'application/javascript');
