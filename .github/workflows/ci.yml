@@ -43,8 +43,8 @@ jobs:
           cache-dependency-path: |
             client/pnpm-lock.yaml
             server/pnpm-lock.yaml
-      - name: Rebuild
-        run: make rebuild-clean
+      - name: Build
+        run: make build-clean
       - name: Run tests
         run: make test
       - name: Lint
