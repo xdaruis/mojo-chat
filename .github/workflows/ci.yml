@@ -26,18 +26,23 @@ jobs:
             import('node:fs').then((fs) => 
               fs.writeFileSync(
                 'server/config.yml',
-                '---\nsecrets:\n  - ' + Buffer.from(crypto.randomBytes(16)).toString('hex')
+                '---\nsecrets:\n  - ' +
+                Buffer.from(crypto.randomBytes(16)).toString('hex')
               )
             )
           "
-      - name: Use Node ${{ matrix.node-version }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.1.0
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: |
-            server/pnpm-lock.yaml
             client/pnpm-lock.yaml
+            server/pnpm-lock.yaml
       - name: Rebuild
         run: make rebuild-clean
       - name: Run tests
@@ -54,7 +59,10 @@ jobs:
             const pre = fs.readFileSync('pre_format.diff', 'utf8');
             const post = fs.readFileSync('post_format.diff', 'utf8');
             if (pre !== post) {
-              console.log('::error::Formatter made changes to files. Please fix formatting issues and commit again.');
+              console.log(
+                '::error::Formatter made changes to files. '
+                + 'Please fix formatting issues and commit again.'
+              );
               process.exit(1);
             }
           "
