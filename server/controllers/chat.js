@@ -4,8 +4,9 @@ import * as ChatHelper from '../helpers/chat.js';
 import { deleteSession } from '../helpers/user.js';
 
 /** @type {Clients} */
-const _clients = new Map();
-let _idCounter = 0;
+const clients = new Map();
+
+let idCounter = 0;
 
 export default class ChatController {
   /**
@@ -15,26 +16,26 @@ export default class ChatController {
     const session = await ctx.session();
 
     ctx.on('connection', (/** @type {MojoWs} */ ws) => {
-      ++_idCounter;
-      _clients.set(ws, session.username || String(_idCounter));
+      ++idCounter;
+      clients.set(ws, session.username || String(idCounter));
 
-      ChatHelper.broadcastToClients(_clients, {
+      ChatHelper.broadcastToClients(clients, {
         user: 'system',
         content:
-          `User ${_idCounter} connected to the chat. ` +
-          `${_clients.size} users connected.`,
+          `User ${idCounter} connected to the chat. ` +
+          `${clients.size} users connected.`,
       });
 
       ws.on('close', async () => {
-        const userId = _clients.get(ws);
-        _clients.delete(ws);
+        const userId = clients.get(ws);
+        clients.delete(ws);
         await deleteSession(ctx);
 
-        ChatHelper.broadcastToClients(_clients, {
+        ChatHelper.broadcastToClients(clients, {
           user: 'system',
           content:
             `User ${userId} disconnected from the chat. ` +
-            `${_clients.size} users connected.`,
+            `${clients.size} users connected.`,
         });
       });
 
@@ -44,8 +45,8 @@ export default class ChatController {
           typeof data === 'string',
           'ws on message data should be a string',
         );
-        const userId = _clients.get(ws);
-        ChatHelper.broadcastToClients(_clients, {
+        const userId = clients.get(ws);
+        ChatHelper.broadcastToClients(clients, {
           user: userId ?? 'Unknown',
           content: data,
         });

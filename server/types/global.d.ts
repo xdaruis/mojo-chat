@@ -1,5 +1,6 @@
 import { MojoContext as BaseMojoContext } from '@mojojs/core';
 import { WebSocket } from '@mojojs/core/lib/websocket';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
 declare global {
@@ -23,12 +24,13 @@ declare module '@mojojs/core/lib/types' {
 declare module '@mojojs/core/lib/app' {
   interface App {
     users: Set<string>;
+    prisma: PrismaClient;
   }
 }
 
 declare module '@mojojs/core' {
   interface MojoContext {
-    validate(condition: boolean, message: string): Promise<boolean>;
+    assert(condition: boolean, message: string): Promise<boolean>;
     parsedJsonRequest<T>(schema: z.ZodSchema<T>): Promise<T> | null;
   }
 }

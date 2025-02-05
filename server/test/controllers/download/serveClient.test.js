@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import t from 'tap';
 
-import { app } from '../../../index.js';
+import app from '../../main.js';
 
 const ua = await app.newTestUserAgent({ tap: t });
 

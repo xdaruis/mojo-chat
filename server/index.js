@@ -1,4 +1,5 @@
 import mojo, { yamlConfigPlugin } from '@mojojs/core';
+import { PrismaClient } from '@prisma/client';
 
 import * as AppHelper from './helpers/index.js';
 
@@ -8,8 +9,9 @@ app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
 
 app.users = new Set();
+app.prisma = new PrismaClient();
 
-app.addHelper('validate', AppHelper.validate);
+app.addHelper('assert', AppHelper.assert);
 app.addHelper('parsedJsonRequest', AppHelper.parsedJsonRequest);
 
 // == User Routes ==

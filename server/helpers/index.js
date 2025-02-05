@@ -3,7 +3,7 @@
  * @param {boolean} condition
  * @param {string} message
  */
-export async function validate(ctx, condition, message) {
+export async function assert(ctx, condition, message) {
   if (!condition) {
     await ctx.render({ json: { error: message }, status: 400 });
     return false;
@@ -13,7 +13,7 @@ export async function validate(ctx, condition, message) {
 
 /**
  * @template T
- * @param {import('@mojojs/core').MojoContext} ctx
+ * @param {MojoContext} ctx
  * @param {import('zod').ZodObject<any>} schema
  * @returns {Promise<T>}
  */
@@ -23,7 +23,7 @@ export async function parsedJsonRequest(ctx, schema) {
 
   if (!result.success) {
     await ctx.render({
-      json: { error: result.error.errors[0]?.message },
+      json: { error: result.error.errors[0]?.message || 'Unexpected error' },
       status: 400,
     });
   }

@@ -1,6 +1,6 @@
 import t from 'tap';
 
-import { app } from '../../../index.js';
+import app from '../../main.js';
 
 let msg = null;
 

@@ -17,15 +17,16 @@ build-prod:
 	cd server && pnpm install --prod --frozen-lockfile
 
 format:
-	cd client && pnpm format && cd .. && cd server && pnpm format
+	cd client && pnpm format && cd .. && cd server && pnpm format && \
+	pnpm prisma format
 
 lint:
 	cd server && pnpm tsc
 
 test:
-	cd server && pnpm test
+	cd server && node ./test/populateDb.js && pnpm test
 
 test-prod:
 	cd server && pnpm install --frozen-lockfile
-	cd server && pnpm test
+	cd server && node ./test/populateDb.js && pnpm test
 	cd server && pnpm prune --prod

@@ -9,14 +9,28 @@ on:
 
 jobs:
   test:
-    if: ${{ (github.event.review.state == 'approved') || (github.ref == 'refs/heads/main')}}
     name: Node ${{ matrix.node-version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         node-version: [22.x, latest]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, ubuntu-latest, macos-latest]
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,6 +45,10 @@ jobs:
               )
             )
           "
+      - name: Setup env
+        run: |
+          touch ./server/.env
+          echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_db" >> ./server/.env
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
