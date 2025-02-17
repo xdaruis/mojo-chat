@@ -4,11 +4,11 @@ all: build format lint test
 
 build:
 	cd client && pnpm install && pnpm run build
-	cd server && pnpm install
+	cd server && pnpm install && pnpm prisma generate
 
 build-clean:
 	cd client && pnpm install --frozen-lockfile && pnpm run build
-	cd server && pnpm install --frozen-lockfile
+	cd server && pnpm install --frozen-lockfile && pnpm prisma generate
 
 build-prod:
 	cd client && pnpm install --frozen-lockfile
@@ -24,9 +24,11 @@ lint:
 	cd server && pnpm tsc
 
 test:
+	cd server && pnpm prisma generate
 	cd server && node ./test/populateDb.js && pnpm test
 
 test-prod:
 	cd server && pnpm install --frozen-lockfile
+	cd server && pnpm prisma generate
 	cd server && node ./test/populateDb.js && pnpm test
 	cd server && pnpm prune --prod

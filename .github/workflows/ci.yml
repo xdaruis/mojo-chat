@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [22.x, latest]
-        os: [ubuntu-24.04, ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, ubuntu-latest]
     services:
       postgres:
         image: postgres:latest
@@ -30,7 +30,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
