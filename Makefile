@@ -4,11 +4,11 @@ all: build format lint test
 
 build:
 	cd client && pnpm install && pnpm run build
-	cd server && pnpm install && pnpm prisma generate
+	cd server && pnpm install
 
 build-clean:
 	cd client && pnpm install --frozen-lockfile && pnpm run build
-	cd server && pnpm install --frozen-lockfile && pnpm prisma generate
+	cd server && pnpm install --frozen-lockfile
 
 build-prod:
 	cd client && pnpm install --frozen-lockfile
