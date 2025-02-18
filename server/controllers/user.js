@@ -25,7 +25,7 @@ export default class UserController {
     }
 
     if (authCredentials) {
-      const credentials = await UserValidator.validateAuthCredentials(
+      const credentials = await UserValidator.validateUserAuthCredentials(
         ctx,
         authCredentials,
       );
@@ -35,7 +35,6 @@ export default class UserController {
           status: 401,
         });
       }
-      // TODO: Save user to database and set his session
     }
 
     session = await UserHelper.setSession(ctx, username);

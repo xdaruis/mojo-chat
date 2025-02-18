@@ -16,6 +16,7 @@ app.addHelper('parsedJsonRequest', AppHelper.parsedJsonRequest);
 
 // == User Routes ==
 app.post('/api/user/login').to('user#onLogin');
+app.post('/api/user/register').to('user#onRegister');
 app.post('/api/user/logout').to('user#onLogout');
 app.post('/api/user/session').to('user#getSession');
 

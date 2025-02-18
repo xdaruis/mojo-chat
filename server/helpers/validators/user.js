@@ -20,7 +20,11 @@ export async function validateUserAuthCredentials(ctx, authCredentials) {
       };
     } catch (/** @type {any} */ error) {
       ctx.log.error(
-        `Google verification error: ${error?.response?.data || error.message}`,
+        `validateUserAuthCredentials error: ${JSON.stringify(
+          error?.message || error,
+          null,
+          2,
+        )}`,
       );
     }
   }

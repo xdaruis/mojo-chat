@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import nock from 'nock';
 
 import { app } from '../index.js';
 
@@ -16,5 +17,9 @@ async function _setupFreshDatabase() {
 }
 
 await _setupFreshDatabase();
+
+// Keep only localhost requests, used to suppress external requests if any
+nock.disableNetConnect();
+nock.enableNetConnect('0.0.0.0');
 
 export default app;

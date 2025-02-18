@@ -12,10 +12,21 @@ const username = z
     'Username can only contain letters, numbers, underscores, and dashes',
   );
 
-const authCredentials = z.object({
-  provider: z.enum(['GOOGLE']),
-  token: z.string(),
-});
+const authCredentials = z.object(
+  {
+    provider: z.enum(['GOOGLE'], {
+      required_error: 'Authentication provider is required',
+      invalid_type_error: 'Invalid authentication provider',
+    }),
+    token: z.string({
+      required_error: 'Authentication token is required',
+      invalid_type_error: 'Token must be a string',
+    }),
+  },
+  {
+    required_error: 'Authentication credentials are required for registration',
+  },
+);
 
 export const onLogin = z.object({
   username: username,
