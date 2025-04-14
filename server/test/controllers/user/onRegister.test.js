@@ -190,7 +190,7 @@ await t.test('invalid requests', async (t) => {
     'should fail when auth credentials are missing',
   );
   t.strictSame(await resNoAuth.json(), {
-    error: 'Authentication credentials are required for registration',
+    error: 'Authentication credentials are required',
   });
 
   // Missing provider
