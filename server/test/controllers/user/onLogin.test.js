@@ -1,3 +1,4 @@
+import nock from 'nock';
 import t from 'tap';
 
 import app from '../../main.js';
@@ -9,153 +10,114 @@ t.afterEach(async () => {
   t.equal(app.users.size, 0, 'should remove all users from active users');
 });
 
-await t.test('successful login', async (t) => {
-  const res = await ua.post('/api/user/login', {
+await t.test('guest login is disabled', async (t) => {
+  const response = await ua.post('/api/user/login', {
     json: { username: 'test123' },
   });
 
-  t.equal(res.statusCode, 200, 'should return 200 status');
-  const resJson = await res.json();
+  t.equal(response.statusCode, 400, 'should return 400 status');
+  const responseBody = await response.json();
 
-  t.ok(resJson.session, 'should return session object');
-  t.strictSame(
-    resJson,
-    {
-      session: {
-        username: 'test123',
+  t.strictSame(responseBody, {
+    error: 'Authentication credentials are required',
+  });
+});
+
+await t.test('should not allow invalid auth credentials', async (t) => {
+  await t.test('wrong provider', async (t) => {
+    const response = await ua.post('/api/user/login', {
+      json: { authCredentials: { provider: 'GOOGLEG', token: 'test' } },
+    });
+
+    t.equal(response.statusCode, 400, 'should return 400 status');
+    const responseBody = await response.json();
+    t.strictSame(responseBody, {
+      error: "Invalid enum value. Expected 'GOOGLE', received 'GOOGLEG'",
+    });
+  });
+
+  await t.test('missing provider', async (t) => {
+    const response = await ua.post('/api/user/login', {
+      json: { authCredentials: { token: 'test' } },
+    });
+
+    t.equal(response.statusCode, 400, 'should return 400 status');
+    const responseBody = await response.json();
+    t.strictSame(responseBody, {
+      error: 'Authentication provider is required',
+    });
+  });
+
+  await t.test('missing authCredentials', async (t) => {
+    const response = await ua.post('/api/user/login', {
+      json: {},
+    });
+
+    t.equal(response.statusCode, 400, 'should return 400 status');
+    const responseBody = await response.json();
+    t.strictSame(responseBody, {
+      error: 'Authentication credentials are required',
+    });
+  });
+
+  await t.test('extra fields', async (t) => {
+    const response = await ua.post('/api/user/login', {
+      json: {
+        authCredentials: { provider: 'GOOGLE', token: 'test' },
+        extra: 'extra',
       },
+    });
+
+    t.equal(response.statusCode, 400, 'should return 400 status');
+    const responseBody = await response.json();
+    t.strictSame(responseBody, {
+      error: "Unrecognized key(s) in object: 'extra'",
+    });
+  });
+});
+
+await t.test('should return 404 if user does not exist', async (t) => {
+  nock('https://oauth2.googleapis.com')
+    .get('/tokeninfo')
+    .query({ access_token: 'test' })
+    .reply(200, { email: 'test@test.com', sub: '123' });
+
+  const response = await ua.post('/api/user/login', {
+    json: { authCredentials: { provider: 'GOOGLE', token: 'test' } },
+  });
+
+  t.equal(response.statusCode, 404);
+
+  const responseBody = await response.json();
+  t.strictSame(responseBody, {
+    error: 'User not found',
+  });
+});
+
+await t.test('should return 200 if user exists', async (t) => {
+  nock('https://oauth2.googleapis.com')
+    .get('/tokeninfo')
+    .query({ access_token: 'test' })
+    .reply(200, { email: 'test@test.com', sub: '123' });
+
+  await app.prisma.users.create({
+    data: {
+      username: 'test-username',
+      email: 'test@test.com',
+      provider: 'GOOGLE',
+      uuid: '123',
     },
-    'should set username in session',
-  );
-  t.ok(app.users.has('test123'), 'should add user to active users');
-});
-
-await t.test('invalid requests', async (t) => {
-  // Missing username
-  const resNoUsername = await ua.post('/api/user/login', {
-    json: {},
-  });
-  let resJson = await resNoUsername.json();
-  t.equal(
-    resNoUsername.statusCode,
-    400,
-    'should fail when username is missing',
-  );
-  t.strictSame(
-    resJson,
-    { error: 'Username is required' },
-    'should return correct error message',
-  );
-
-  // Non-string username
-  const resNonString = await ua.post('/api/user/login', {
-    json: { username: 123 },
-  });
-  resJson = await resNonString.json();
-  t.equal(
-    resNonString.statusCode,
-    400,
-    'should fail when username is not a string',
-  );
-  t.strictSame(
-    resJson,
-    { error: 'Username must be a string' },
-    'should return correct error message',
-  );
-
-  // Invalid username format
-  const resInvalidFormat = await ua.post('/api/user/login', {
-    json: { username: 'a b a b' }, // contains space
-  });
-  t.equal(
-    resInvalidFormat.statusCode,
-    400,
-    'should fail with invalid username format',
-  );
-  resJson = await resInvalidFormat.json();
-  t.strictSame(resJson, {
-    error:
-      'Username can only contain letters, numbers, underscores, ' +
-      'and dashes',
   });
 
-  // Username too short
-  const resTooShort = await ua.post('/api/user/login', {
-    json: { username: 'ab' },
-  });
-  t.equal(resTooShort.statusCode, 400);
-  resJson = await resTooShort.json();
-  t.strictSame(resJson, { error: 'Username must be at least 4 characters' });
-
-  // username too long
-  const resTooLong = await ua.post('/api/user/login', {
-    json: { username: '1234567891011121' },
-  });
-  resJson = await resTooLong.json();
-  t.equal(resTooLong.statusCode, 400, 'should fail when username is too long');
-  t.strictSame(resJson, { error: 'Username must be at most 15 characters' });
-
-  // username contains cyrilic characters
-  const resCyrilic = await ua.post('/api/user/login', {
-    json: { username: 'привет123' },
-  });
-  t.equal(resCyrilic.statusCode, 400);
-  resJson = await resCyrilic.json();
-  t.strictSame(resJson, {
-    error:
-      'Username can only contain letters, numbers, underscores, ' +
-      'and dashes',
-  });
-});
-
-await t.test('duplicate username', async (t) => {
-  // First login should succeed
-  await ua.post('/api/user/login', {
-    json: { username: 'duplicate' },
+  const response = await ua.post('/api/user/login', {
+    json: { authCredentials: { provider: 'GOOGLE', token: 'test' } },
   });
 
-  // Second attempt with same username should fail
-  const res = await ua.post('/api/user/login', {
-    json: { username: 'duplicate' },
-  });
+  t.equal(response.statusCode, 200);
 
-  t.equal(res.statusCode, 400, 'should fail for duplicate username');
-  const resJson = await res.json();
-  t.strictSame(
-    resJson,
-    { error: 'User already connected' },
-    'should return correct error message',
-  );
-});
-
-await t.test('user already connected', async (t) => {
-  const res1 = await ua.post('/api/user/login', {
-    json: { username: 'connected' },
-  });
-  t.equal(res1.statusCode, 200, 'should succeed for first login');
-
-  const res2 = await ua.post('/api/user/login', {
-    json: { username: 'connected2' },
-  });
-
-  t.equal(res2.statusCode, 400, 'should fail for duplicate username');
-  const resJson = await res2.json();
-  t.strictSame(
-    resJson,
-    { error: 'User already connected' },
-    'should return correct error message',
-  );
-});
-
-await t.test('should not allow extra fields in request', async (t) => {
-  const res = await ua.post('/api/user/login', {
-    json: { username: 'test123', extra: 'extra' },
-  });
-
-  t.equal(res.statusCode, 400, 'should return 400 status');
-  const resJson = await res.json();
-  t.strictSame(resJson, {
-    error: "Unrecognized key(s) in object: 'extra'",
+  const responseBody = await response.json();
+  t.strictSame(responseBody, {
+    session: { username: 'test-username' },
   });
 });
 
