@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as UserSchema from '../helpers/schemas/user.js';
 import * as UserHelper from '../helpers/user.js';
 import * as UserValidator from '../helpers/validators/user.js';
@@ -11,33 +10,38 @@ export default class UserController {
     const payload = await ctx.parsedJsonRequest(UserSchema.onLogin);
 
     if (!payload) return;
-    const { username, authCredentials } = payload;
 
-    let session = await ctx.session();
+    const { authCredentials } = payload;
 
-    if (
-      !(await ctx.assert(
-        !ctx.app.users.has(username) && session.username === undefined,
-        'User already connected',
-      ))
-    ) {
-      return;
+    const credentials = await UserValidator.validateUserAuthCredentials(
+      ctx,
+      authCredentials,
+    );
+
+    if (!credentials) {
+      return ctx.render({
+        json: { error: 'Invalid credentials' },
+        status: 401,
+      });
     }
 
-    if (authCredentials) {
-      const credentials = await UserValidator.validateUserAuthCredentials(
-        ctx,
-        authCredentials,
-      );
-      if (!credentials) {
-        return ctx.render({
-          json: { error: 'Invalid credentials' },
-          status: 401,
-        });
-      }
+    const user = await ctx.app.prisma.users.findUnique({
+      where: {
+        provider_uuid: {
+          provider: authCredentials.provider,
+          uuid: credentials.uuid,
+        },
+      },
+    });
+
+    if (!user) {
+      return ctx.render({
+        json: { error: 'User not found' },
+        status: 404,
+      });
     }
 
-    session = await UserHelper.setSession(ctx, username);
+    const session = await UserHelper.setSession(ctx, user.username);
 
     return ctx.render({ json: { session } });
   }
@@ -49,6 +53,7 @@ export default class UserController {
     const payload = await ctx.parsedJsonRequest(UserSchema.onRegister);
 
     if (!payload) return;
+
     const { username, authCredentials } = payload;
 
     const credentials = await UserValidator.validateUserAuthCredentials(
@@ -98,7 +103,9 @@ export default class UserController {
 
       return ctx.render({ json: { session } });
     } catch (error) {
-      ctx.app.log.error('Registration error:', error);
+      ctx.app.log.error(
+        `Registration error: ${JSON.stringify(error, null, 2)}`,
+      );
       return ctx.render({
         json: { error: 'Registration failed' },
         status: 500,

@@ -11,7 +11,6 @@ app.secrets = app.config.secrets;
 app.users = new Set();
 app.prisma = new PrismaClient();
 
-app.addHelper('assert', AppHelper.assert);
 app.addHelper('parsedJsonRequest', AppHelper.parsedJsonRequest);
 
 // == User Routes ==

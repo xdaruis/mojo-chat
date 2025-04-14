@@ -1,17 +1,4 @@
 /**
- * @param {MojoContext} ctx
- * @param {boolean} condition
- * @param {string} message
- */
-export async function assert(ctx, condition, message) {
-  if (!condition) {
-    await ctx.render({ json: { error: message }, status: 400 });
-    return false;
-  }
-  return true;
-}
-
-/**
  * @template T
  * @param {MojoContext} ctx
  * @param {import('zod').ZodObject<any>} schema

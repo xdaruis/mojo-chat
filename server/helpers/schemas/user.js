@@ -24,13 +24,12 @@ const authCredentials = z.object(
     }),
   },
   {
-    required_error: 'Authentication credentials are required for registration',
+    required_error: 'Authentication credentials are required',
   },
 );
 
 export const onLogin = z.object({
-  username: username,
-  authCredentials: authCredentials.optional(),
+  authCredentials: authCredentials,
 });
 
 export const onRegister = z.object({
