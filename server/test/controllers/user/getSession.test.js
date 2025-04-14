@@ -1,6 +1,16 @@
+import nock from 'nock';
 import t from 'tap';
 
 import app from '../../main.js';
+
+await app.prisma.users.create({
+  data: {
+    username: 'test123',
+    email: 'test@test.com',
+    provider: 'GOOGLE',
+    uuid: '123',
+  },
+});
 
 const ua = await app.newTestUserAgent({ tap: t });
 
@@ -11,9 +21,16 @@ await t.test('should start with empty session', async (t) => {
 });
 
 await t.test('should create session on login', async (t) => {
+  nock('https://oauth2.googleapis.com')
+    .get('/tokeninfo')
+    .query({ access_token: 'test' })
+    .reply(200, { email: 'test@test.com', sub: '123' });
+
   const login = await ua.post('/api/user/login', {
-    json: { username: 'test123' },
+    json: { authCredentials: { provider: 'GOOGLE', token: 'test' } },
   });
+
+  t.equal(login.statusCode, 200, 'returns 200');
   t.strictSame(await login.json(), { session: { username: 'test123' } });
 });
 
