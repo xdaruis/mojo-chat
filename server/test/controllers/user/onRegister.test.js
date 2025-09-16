@@ -47,7 +47,7 @@ await t.test('successful registration', async (t) => {
   });
 });
 
-await t.test('duplicate registration attempts', async (t) => {
+await t.test('duplicate registration attempts should fail', async (t) => {
   nock('https://oauth2.googleapis.com')
     .get('/tokeninfo')
     .query({ access_token: 'valid_token' })
@@ -91,7 +91,7 @@ await t.test('duplicate registration attempts', async (t) => {
   );
 });
 
-await t.test('duplicate Google account', async (t) => {
+await t.test('duplicate Google account should fail', async (t) => {
   nock('https://oauth2.googleapis.com')
     .get('/tokeninfo')
     .query({ access_token: 'valid_token' })
@@ -135,7 +135,7 @@ await t.test('duplicate Google account', async (t) => {
   );
 });
 
-await t.test('invalid token', async (t) => {
+await t.test('invalid token should fail', async (t) => {
   nock('https://oauth2.googleapis.com')
     .get('/tokeninfo')
     .query({ access_token: 'invalid_token' })
@@ -161,7 +161,7 @@ await t.test('invalid token', async (t) => {
   );
 });
 
-await t.test('invalid requests', async (t) => {
+await t.test('invalid requests should fail', async (t) => {
   // Missing username
   const resNoUsername = await ua.post('/api/user/register', {
     json: {
