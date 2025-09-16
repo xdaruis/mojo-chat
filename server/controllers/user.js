@@ -72,7 +72,7 @@ export default class UserController {
       const existingUser = await ctx.app.prisma.users.findFirst({
         where: {
           OR: [
-            { username },
+            { username: { equals: username, mode: 'insensitive' } },
             {
               AND: {
                 provider: authCredentials.provider,

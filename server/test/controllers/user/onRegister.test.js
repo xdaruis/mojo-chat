@@ -4,14 +4,15 @@ import t from 'tap';
 import app from '../../main.js';
 
 const ua = await app.newTestUserAgent({ tap: t });
+let idCounter = 0;
 
 await t.test('successful registration', async (t) => {
   nock('https://oauth2.googleapis.com')
     .get('/tokeninfo')
     .query({ access_token: 'valid_token' })
     .reply(200, {
-      email: 'test@example.com',
-      sub: '123456789',
+      email: `test${++idCounter}@example.com`,
+      sub: `${idCounter}`,
     });
 
   const res = await ua.post('/api/user/register', {
@@ -40,9 +41,9 @@ await t.test('successful registration', async (t) => {
   t.strictSame(user, {
     id: 1,
     username: 'testuser',
-    email: 'test@example.com',
+    email: 'test1@example.com',
     provider: 'GOOGLE',
-    uuid: '123456789',
+    uuid: '1',
     createdAt: user.createdAt,
   });
 });
@@ -53,14 +54,14 @@ await t.test('duplicate registration attempts should fail', async (t) => {
     .query({ access_token: 'valid_token' })
     .times(2)
     .reply(200, {
-      email: 'test@example.com',
-      sub: '123456789',
+      email: `test${++idCounter}@example.com`,
+      sub: `${idCounter}`,
     });
 
   // First registration
   await ua.post('/api/user/register', {
     json: {
-      username: 'duplicate',
+      username: 'org_username',
       authCredentials: {
         provider: 'GOOGLE',
         token: 'valid_token',
@@ -68,13 +69,43 @@ await t.test('duplicate registration attempts should fail', async (t) => {
     },
   });
 
-  // Attempt duplicate username
-  const resDuplicateUsername = await ua.post('/api/user/register', {
+  // Attempt duplicate google account
+  const resDuplicateGoogleAccount = await ua.post('/api/user/register', {
     json: {
-      username: 'duplicate',
+      username: 'diff_username',
       authCredentials: {
         provider: 'GOOGLE',
         token: 'valid_token',
+      },
+    },
+  });
+
+  t.equal(
+    resDuplicateGoogleAccount.statusCode,
+    400,
+  );
+  t.strictSame(
+    await resDuplicateGoogleAccount.json(),
+    { error: 'Username or account already registered' },
+  );
+
+  // Set another gmail response to test duplicate username
+  nock('https://oauth2.googleapis.com')
+    .get('/tokeninfo')
+    .query({ access_token: 'another_valid_token' })
+    .times(1)
+    .reply(200, {
+      email: `test${++idCounter}@example.com`,
+      sub: `${idCounter}`,
+    });
+
+  // Attempt duplicate username (case insensitive)
+  const resDuplicateUsername = await ua.post('/api/user/register', {
+    json: {
+      username: 'OrG_UsErNaMe',
+      authCredentials: {
+        provider: 'GOOGLE',
+        token: 'another_valid_token',
       },
     },
   });
@@ -82,56 +113,10 @@ await t.test('duplicate registration attempts should fail', async (t) => {
   t.equal(
     resDuplicateUsername.statusCode,
     400,
-    'should reject duplicate username',
   );
   t.strictSame(
     await resDuplicateUsername.json(),
     { error: 'Username or account already registered' },
-    'should return correct error message',
-  );
-});
-
-await t.test('duplicate Google account should fail', async (t) => {
-  nock('https://oauth2.googleapis.com')
-    .get('/tokeninfo')
-    .query({ access_token: 'valid_token' })
-    .times(2)
-    .reply(200, {
-      email: 'test@example.com',
-      sub: '123456789',
-    });
-
-  // First registration
-  await ua.post('/api/user/register', {
-    json: {
-      username: 'user1',
-      authCredentials: {
-        provider: 'GOOGLE',
-        token: 'valid_token',
-      },
-    },
-  });
-
-  // Attempt registration with same Google account (same email and uuid)
-  const resDuplicateAccount = await ua.post('/api/user/register', {
-    json: {
-      username: 'user2',
-      authCredentials: {
-        provider: 'GOOGLE',
-        token: 'valid_token',
-      },
-    },
-  });
-
-  t.equal(
-    resDuplicateAccount.statusCode,
-    400,
-    'should reject duplicate Google account',
-  );
-  t.strictSame(
-    await resDuplicateAccount.json(),
-    { error: 'Username or account already registered' },
-    'should return correct error message',
   );
 });
 
@@ -157,7 +142,6 @@ await t.test('invalid token should fail', async (t) => {
   t.strictSame(
     await res.json(),
     { error: 'Invalid credentials' },
-    'should return correct error message',
   );
 });
 
@@ -174,7 +158,6 @@ await t.test('invalid requests should fail', async (t) => {
   t.equal(
     resNoUsername.statusCode,
     400,
-    'should fail when username is missing',
   );
   t.strictSame(await resNoUsername.json(), { error: 'Username is required' });
 
@@ -205,7 +188,6 @@ await t.test('invalid requests should fail', async (t) => {
   t.equal(
     resMissingProvider.statusCode,
     400,
-    'should fail when auth credentials are missing',
   );
   t.strictSame(await resMissingProvider.json(), {
     error: 'Authentication provider is required',
@@ -223,7 +205,6 @@ await t.test('invalid requests should fail', async (t) => {
   t.equal(
     resMissingToken.statusCode,
     400,
-    'should fail when auth credentials are missing',
   );
   t.strictSame(await resMissingToken.json(), {
     error: 'Authentication token is required',
@@ -242,7 +223,6 @@ await t.test('invalid requests should fail', async (t) => {
   t.equal(
     resInvalidProvider.statusCode,
     400,
-    'should fail with invalid provider',
   );
 });
 

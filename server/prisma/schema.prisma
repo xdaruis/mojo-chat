@@ -13,6 +13,8 @@ enum Provider {
 
 model users {
   id        Int      @id @default(autoincrement())
+  // TODO: Manually add case insensitive unique constraint on username
+  // so the DB is 100% safe from duplicate usernames (case insensitive)
   username  String   @unique
   email     String
   uuid      String
