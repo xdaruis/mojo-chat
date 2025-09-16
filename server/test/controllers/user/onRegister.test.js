@@ -80,14 +80,10 @@ await t.test('duplicate registration attempts should fail', async (t) => {
     },
   });
 
-  t.equal(
-    resDuplicateGoogleAccount.statusCode,
-    400,
-  );
-  t.strictSame(
-    await resDuplicateGoogleAccount.json(),
-    { error: 'Username or account already registered' },
-  );
+  t.equal(resDuplicateGoogleAccount.statusCode, 400);
+  t.strictSame(await resDuplicateGoogleAccount.json(), {
+    error: 'Username or account already registered',
+  });
 
   // Set another gmail response to test duplicate username
   nock('https://oauth2.googleapis.com')
@@ -110,14 +106,10 @@ await t.test('duplicate registration attempts should fail', async (t) => {
     },
   });
 
-  t.equal(
-    resDuplicateUsername.statusCode,
-    400,
-  );
-  t.strictSame(
-    await resDuplicateUsername.json(),
-    { error: 'Username or account already registered' },
-  );
+  t.equal(resDuplicateUsername.statusCode, 400);
+  t.strictSame(await resDuplicateUsername.json(), {
+    error: 'Username or account already registered',
+  });
 });
 
 await t.test('invalid token should fail', async (t) => {
@@ -139,10 +131,7 @@ await t.test('invalid token should fail', async (t) => {
   });
 
   t.equal(res.statusCode, 401);
-  t.strictSame(
-    await res.json(),
-    { error: 'Invalid credentials' },
-  );
+  t.strictSame(await res.json(), { error: 'Invalid credentials' });
 });
 
 await t.test('invalid requests should fail', async (t) => {
@@ -155,10 +144,7 @@ await t.test('invalid requests should fail', async (t) => {
       },
     },
   });
-  t.equal(
-    resNoUsername.statusCode,
-    400,
-  );
+  t.equal(resNoUsername.statusCode, 400);
   t.strictSame(await resNoUsername.json(), { error: 'Username is required' });
 
   // Missing auth credentials
@@ -185,10 +171,7 @@ await t.test('invalid requests should fail', async (t) => {
       },
     },
   });
-  t.equal(
-    resMissingProvider.statusCode,
-    400,
-  );
+  t.equal(resMissingProvider.statusCode, 400);
   t.strictSame(await resMissingProvider.json(), {
     error: 'Authentication provider is required',
   });
@@ -202,10 +185,7 @@ await t.test('invalid requests should fail', async (t) => {
       },
     },
   });
-  t.equal(
-    resMissingToken.statusCode,
-    400,
-  );
+  t.equal(resMissingToken.statusCode, 400);
   t.strictSame(await resMissingToken.json(), {
     error: 'Authentication token is required',
   });
@@ -220,10 +200,33 @@ await t.test('invalid requests should fail', async (t) => {
       },
     },
   });
-  t.equal(
-    resInvalidProvider.statusCode,
-    400,
-  );
+  t.equal(resInvalidProvider.statusCode, 400);
+});
+
+await t.test('invalid usernames should fail', async (t) => {
+  const invalidUsernames = ['tes', '123456789012345678901', '😎testuser'];
+
+  const errorMessages = [
+    'Username must be at least 4 characters',
+    'Username must be at most 15 characters',
+    'Username can only contain english letters, numbers, underscores, ' +
+      'and dashes(A-Z, a-z, 0-9, _, -)',
+  ];
+
+  for (let i = 0; i < invalidUsernames.length; ++i) {
+    const username = invalidUsernames[i];
+    const errorMessage = errorMessages[i];
+
+    const res = await ua.post('/api/user/register', {
+      json: {
+        username,
+        authCredentials: { provider: 'GOOGLE', token: 'valid_token' },
+      },
+    });
+
+    t.equal(res.statusCode, 400);
+    t.strictSame(await res.json(), { error: errorMessage });
+  }
 });
 
 await ua.stop();

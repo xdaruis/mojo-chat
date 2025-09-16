@@ -9,7 +9,8 @@ const username = z
   .max(15, 'Username must be at most 15 characters')
   .regex(
     /^[a-zA-Z0-9_-]+$/,
-    'Username can only contain letters, numbers, underscores, and dashes',
+    'Username can only contain english letters, numbers, underscores, ' +
+      'and dashes(A-Z, a-z, 0-9, _, -)',
   );
 
 const authCredentials = z.object(
