@@ -39,7 +39,6 @@ declare module '@mojojs/core/lib/app' {
 
 declare module '@mojojs/core' {
   interface MojoContext {
-    assert(condition: boolean, message: string): Promise<boolean>;
     parsedJsonRequest<T>(schema: z.ZodSchema<T>): Promise<T> | null;
   }
 }

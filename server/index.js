@@ -8,7 +8,6 @@ export const app = mojo({ exceptionFormat: 'json' });
 app.plugin(yamlConfigPlugin);
 app.secrets = app.config.secrets;
 
-app.users = new Set();
 app.prisma = new PrismaClient();
 
 app.addHelper('parsedJsonRequest', AppHelper.parsedJsonRequest);

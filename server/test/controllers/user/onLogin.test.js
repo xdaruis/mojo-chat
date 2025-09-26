@@ -7,7 +7,6 @@ const ua = await app.newTestUserAgent({ tap: t });
 
 t.afterEach(async () => {
   await ua.post('/api/user/logout', { json: {} });
-  t.equal(app.users.size, 0, 'should remove all users from active users');
 });
 
 await t.test('guest login is disabled', async (t) => {

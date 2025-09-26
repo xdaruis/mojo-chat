@@ -6,7 +6,6 @@ const ua = await app.newTestUserAgent({ tap: t });
 
 t.afterEach(async () => {
   await ua.post('/api/user/logout', { json: {} });
-  t.equal(app.users.size, 0, 'should remove all users from active users');
 });
 
 await ua.post('/api/user/login', {
@@ -22,6 +21,5 @@ t.strictSame(
   { message: 'Logout successful' },
   'should return success message',
 );
-t.notOk(app.users.has('logoutTest'), 'should remove user from active users');
 
 await ua.stop();
