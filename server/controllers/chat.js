@@ -14,7 +14,6 @@ export default class ChatController {
   async onConnect(ctx) {
     const session = await ctx.session();
     assert(session.username, 'Session username is required');
-    // console.log('session:::', JSON.stringify(session, null, 2));
 
     ctx.on('connection', (/** @type {MojoWs} */ ws) => {
       clients.set(ws, session.username ?? 'Unknown');
