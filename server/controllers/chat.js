@@ -30,9 +30,9 @@ export default class ChatController {
         });
       }
 
-      ws.on('message', (/** @type {string} */ msg) => {
-        // DEVNOTE: In the future we might wanna send a JSON string
-        // instead of a string
+      ws.on('message', (msg) => {
+        // DEVNOTE: In the future we might wanna receive a JSON string
+        // instead of a normal string
         assert(
           typeof msg === 'string',
           'ws on message data should be a string',
