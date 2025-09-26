@@ -4,6 +4,8 @@ import * as ChatHelper from '../helpers/chat.js';
 
 /** @type {Clients} */
 const clients = new Map();
+
+/** @type {Map<string, number>} */
 const usernames = new Map();
 
 export default class ChatController {
@@ -12,21 +14,19 @@ export default class ChatController {
    * @returns {Promise<void>}
    */
   async onConnect(ctx) {
-    const session = await ctx.session();
-    assert(session.username, 'Session username is required');
+    const username = (await ctx.session()).username;
+
+    assert(typeof username === 'string', 'Session username is required');
 
     ctx.on('connection', (/** @type {MojoWs} */ ws) => {
-      clients.set(ws, session.username ?? 'Unknown');
-      usernames.set(
-        session.username,
-        (usernames.get(session.username) ?? 0) + 1,
-      );
+      clients.set(ws, username);
+      usernames.set(username, (usernames.get(username) ?? 0) + 1);
 
-      if (usernames.get(session.username) === 1) {
+      if (usernames.get(username) === 1) {
         ChatHelper.broadcastToClients(clients, {
           type: 'system',
           event: 'user_connected',
-          user: session.username ?? 'Unknown',
+          user: username,
         });
       }
 
@@ -37,27 +37,25 @@ export default class ChatController {
           typeof msg === 'string',
           'ws on message data should be a string',
         );
-        const userId = clients.get(ws);
         ChatHelper.broadcastToClients(clients, {
           type: 'chat',
-          user: userId ?? 'Unknown',
+          user: username,
           content: msg,
         });
       });
 
       ws.on('close', async () => {
-        const username = clients.get(ws);
         usernames.set(username, (usernames.get(username) ?? 0) - 1);
         clients.delete(ws);
 
-        if (usernames.get(username) > 0) return;
+        if (usernames.get(username) ?? 0 > 0) return;
 
         usernames.delete(username);
 
         ChatHelper.broadcastToClients(clients, {
           type: 'system',
           event: 'user_disconnected',
-          user: username ?? 'Unknown',
+          user: username,
         });
       });
     });
