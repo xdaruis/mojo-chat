@@ -3,6 +3,7 @@ import axios from 'axios';
 /**
  * @param {MojoContext} ctx
  * @param {{ provider: 'GOOGLE', token: string }} authCredentials
+ * @returns {Promise<{ email: string, uuid: string } | null>}
  */
 export async function validateUserAuthCredentials(ctx, authCredentials) {
   if (authCredentials.provider === 'GOOGLE') {
@@ -21,7 +22,7 @@ export async function validateUserAuthCredentials(ctx, authCredentials) {
     } catch (/** @type {any} */ error) {
       ctx.log.error(
         `validateUserAuthCredentials error: ${JSON.stringify(
-          error?.message || error,
+          error?.message || error?.response?.data || error,
           null,
           2,
         )}`,

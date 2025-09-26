@@ -1,6 +1,7 @@
 /**
  * @param {Clients} clients
- * @param {ChatMessage} message
+ * @param {WebSocketMessage} message
+ * @returns {void}
  */
 export function broadcastToClients(clients, message) {
   const serializedMessage = JSON.stringify(message);

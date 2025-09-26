@@ -20,7 +20,11 @@ app.post('/api/user/logout').to('user#onLogout');
 app.post('/api/user/session').to('user#getSession');
 
 // == Chat Routes ==
-app.websocket('/api/chat/connect').to('chat#onConnect');
+app
+  .under(AppHelper.loggedIn)
+  .websocket('/api/chat/connect')
+  .to('chat#onConnect');
+
 app.get('/api/chat/healthcheck').to('chat#healthCheck');
 
 // == Download Routes ==

@@ -3,14 +3,23 @@ import { WebSocket } from '@mojojs/core/lib/websocket';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
+type ChatMessage = {
+  type: 'chat';
+  user: string;
+  content: string;
+};
+
+type SystemMessage = {
+  type: 'system';
+  event: 'user_connected' | 'user_disconnected';
+  user: string;
+};
+
 declare global {
   type MojoContext = BaseMojoContext;
   type MojoWs = WebSocket;
 
-  type ChatMessage = {
-    user: 'system' | string;
-    content: string;
-  };
+  type WebSocketMessage = ChatMessage | SystemMessage;
 
   type Clients = Map<MojoWs, string>;
 }
