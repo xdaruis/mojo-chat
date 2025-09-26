@@ -30,6 +30,14 @@ export default class ChatController {
         });
       }
 
+      ws.send(
+        JSON.stringify({
+          type: 'system',
+          event: 'user_list',
+          users: Array.from(usernames.keys()),
+        }),
+      );
+
       ws.on('message', (msg) => {
         // DEVNOTE: In the future we might wanna receive a JSON string
         // instead of a normal string

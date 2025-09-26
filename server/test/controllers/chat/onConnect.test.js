@@ -21,71 +21,95 @@ await t.test(
   },
 );
 
-await t.test('test notifications for user connections', async (t) => {
-  const user1Client = await app.newTestUserAgent({ tap: t });
-  await loginUser(app, user1Client, 'test1');
-  await user1Client.websocketOk('/api/chat/connect');
+await t.test(
+  'test all system notifications for user connections',
+  async (t) => {
+    const user1Client = await app.newTestUserAgent({ tap: t });
+    await loginUser(app, user1Client, 'test1');
+    await user1Client.websocketOk('/api/chat/connect');
 
-  message = JSON.parse(await user1Client.messageOk());
+    message = JSON.parse(await user1Client.messageOk());
 
-  t.strictSame(message, {
-    type: 'system',
-    event: 'user_connected',
-    user: 'test1',
-  });
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_connected',
+      user: 'test1',
+    });
 
-  const user1Client2 = await app.newTestUserAgent({ tap: t });
-  await loginUser(app, user1Client2, 'test1');
-  await user1Client2.websocketOk('/api/chat/connect');
+    message = JSON.parse(await user1Client.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['test1'],
+    });
 
-  await assertNoWsMessage(t, user1Client);
+    const user1Client2 = await app.newTestUserAgent({ tap: t });
+    await loginUser(app, user1Client2, 'test1');
+    await user1Client2.websocketOk('/api/chat/connect');
 
-  const user2Client = await app.newTestUserAgent({ tap: t });
-  await loginUser(app, user2Client, 'test2');
-  await user2Client.websocketOk('/api/chat/connect');
+    await assertNoWsMessage(t, user1Client);
 
-  message = JSON.parse(await user2Client.messageOk());
-  t.strictSame(message, {
-    type: 'system',
-    event: 'user_connected',
-    user: 'test2',
-  });
+    message = JSON.parse(await user1Client2.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['test1'],
+    });
 
-  message = JSON.parse(await user1Client2.messageOk());
-  t.strictSame(message, {
-    type: 'system',
-    event: 'user_connected',
-    user: 'test2',
-  });
+    const user2Client = await app.newTestUserAgent({ tap: t });
+    await loginUser(app, user2Client, 'test2');
+    await user2Client.websocketOk('/api/chat/connect');
 
-  message = JSON.parse(await user1Client.messageOk());
-  t.strictSame(message, {
-    type: 'system',
-    event: 'user_connected',
-    user: 'test2',
-  });
+    message = JSON.parse(await user2Client.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_connected',
+      user: 'test2',
+    });
 
-  await user1Client.closeOk(4000);
-  await user1Client.closedOk(4000);
-  await user1Client.stop();
+    message = JSON.parse(await user2Client.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['test1', 'test2'],
+    });
 
-  await assertNoWsMessage(t, user2Client);
+    message = JSON.parse(await user1Client.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_connected',
+      user: 'test2',
+    });
 
-  await user1Client2.closeOk(4000);
-  await user1Client2.closedOk(4000);
-  await user1Client2.stop();
+    message = JSON.parse(await user1Client2.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_connected',
+      user: 'test2',
+    });
 
-  message = JSON.parse(await user2Client.messageOk());
-  t.strictSame(message, {
-    type: 'system',
-    event: 'user_disconnected',
-    user: 'test1',
-  });
+    await user1Client.closeOk(4000);
+    await user1Client.closedOk(4000);
+    await user1Client.stop();
 
-  await user2Client.closeOk(4000);
-  await user2Client.closedOk(4000);
-  await user2Client.stop();
-});
+    await assertNoWsMessage(t, user2Client, 5000);
+
+    await user1Client2.closeOk(4000);
+    await user1Client2.closedOk(4000);
+    await user1Client2.stop();
+
+    message = JSON.parse(await user2Client.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_disconnected',
+      user: 'test1',
+    });
+
+    await user2Client.closeOk(4000);
+    await user2Client.closedOk(4000);
+    await user2Client.stop();
+  },
+);
 
 await t.test(
   'broadcast chat messages to all connected clients (including sender)',
@@ -101,6 +125,13 @@ await t.test(
       user: 'alice',
     });
 
+    message = JSON.parse(await aliceClient.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['alice'],
+    });
+
     const bobClient = await app.newTestUserAgent({ tap: t });
     await loginUser(app, bobClient, 'bob');
     await bobClient.websocketOk('/api/chat/connect');
@@ -110,6 +141,13 @@ await t.test(
       type: 'system',
       event: 'user_connected',
       user: 'bob',
+    });
+
+    message = JSON.parse(await bobClient.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['alice', 'bob'],
     });
 
     message = JSON.parse(await aliceClient.messageOk());
@@ -161,13 +199,29 @@ await t.test(
       user: 'alice',
     });
 
+    message = JSON.parse(await aliceClient1.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['alice'],
+    });
+
     const aliceClient2 = await app.newTestUserAgent({ tap: t });
     await loginUser(app, aliceClient2, 'alice');
     await aliceClient2.websocketOk('/api/chat/connect');
 
+    message = JSON.parse(await aliceClient2.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['alice'],
+    });
+
     // Second connection for alice should NOT emit another user_connected
-    await assertNoWsMessage(t, aliceClient1);
-    await assertNoWsMessage(t, aliceClient2);
+    await Promise.all([
+      assertNoWsMessage(t, aliceClient1),
+      assertNoWsMessage(t, aliceClient2),
+    ]);
 
     const bobClient = await app.newTestUserAgent({ tap: t });
     await loginUser(app, bobClient, 'bob');
@@ -179,6 +233,13 @@ await t.test(
       type: 'system',
       event: 'user_connected',
       user: 'bob',
+    });
+
+    message = JSON.parse(await bobClient.messageOk());
+    t.strictSame(message, {
+      type: 'system',
+      event: 'user_list',
+      users: ['alice', 'bob'],
     });
 
     message = JSON.parse(await aliceClient1.messageOk());
