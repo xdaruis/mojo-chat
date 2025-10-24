@@ -1,5 +1,6 @@
 export default class DownloadController {
   /**
+   * TODO: Consider moving this to NGINX (?)
    * @param {MojoContext} ctx
    */
   async serveClient(ctx) {

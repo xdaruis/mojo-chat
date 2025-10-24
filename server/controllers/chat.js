@@ -38,6 +38,7 @@ export default class ChatController {
         }),
       );
 
+      // TODO: Add some rate limiting to the chat messages
       ws.on('message', (msg) => {
         // DEVNOTE: In the future we might wanna receive a JSON string
         // instead of a normal string
@@ -60,6 +61,8 @@ export default class ChatController {
 
         usernames.delete(username);
 
+        // TODO: Find a way to not display reconnections if timer is small
+        // usually happens for browser refresh
         ChatHelper.broadcastToClients(clients, {
           type: 'system',
           event: 'user_disconnected',
