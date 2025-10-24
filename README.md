@@ -4,7 +4,18 @@ Minimal real-time chat app. Client: React + Vite + Tailwind + Redux with Google 
 
 ## Dependencies
 - Node.js >= 22
+- PostgreSQL >= 14
 - Package manager: pnpm
+
+## Useful commands for first setup:
+For Linux (apt) you can install PostgreSQL with:
+`sudo apt install -y postgresql postgresql-contrib`
+
+Create a user with:
+`sudo -u postgres psql -c "CREATE USER <username> WITH SUPERUSER PASSWORD '<password>';"`
+
+Create a database with:
+`createdb <dbname>`
 
 ## Folder structure
 ```text
