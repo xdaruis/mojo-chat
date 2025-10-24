@@ -1,4 +1,5 @@
 export default function OnlineUsersList({
+  users,
   showUsers,
   setShowUsers,
   getUserColor,
@@ -22,18 +23,15 @@ export default function OnlineUsersList({
         </button>
       </div>
       <ul className="text-lg p-3">
-        <li className="mb-1">
-          <span className={`${getUserColor('Admin')}`}>@ Admin</span>
-        </li>
-        <li className="mb-1">
-          <span className={`${getUserColor('User1')}`}>+ User1</span>
-        </li>
-        <li className="mb-1">
-          <span className={`${getUserColor('User2')}`}>+ User2</span>
-        </li>
-        <li className="mb-1">
-          <span className={`${getUserColor('User3')}`}>+ User3</span>
-        </li>
+        {users?.length ? (
+          users.map((u) => (
+            <li key={u} className="mb-1">
+              <span className={`${getUserColor(u)}`}>+ {u}</span>
+            </li>
+          ))
+        ) : (
+          <li className="mb-1 text-gray-500">No users online</li>
+        )}
       </ul>
     </aside>
   );

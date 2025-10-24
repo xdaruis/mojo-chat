@@ -1,6 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const PHASE = Object.freeze({
@@ -16,6 +17,16 @@ export default function LoginRegister() {
   const [authCredentials, setAuthCredentials] = useState(null);
   const [phase, setPhase] = useState(PHASE.IDLE);
   const [error, setError] = useState('');
+
+  const isUserAuthenticated = useSelector(
+    (state) => state.user.isAuthenticated,
+  );
+
+  useEffect(() => {
+    if (isUserAuthenticated) {
+      navigate('/chat');
+    }
+  }, [isUserAuthenticated, navigate]);
 
   const tryLogin = async (credentials) => {
     try {

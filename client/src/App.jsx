@@ -24,9 +24,9 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-
   const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(true);
 
   const getSession = useCallback(async () => {
     try {

@@ -18,12 +18,6 @@ export default function ChatPage() {
   const messageIdRef = useRef(0);
 
   useEffect(() => {
-    if (!isUserAuthenticated) {
-      alert(123);
-      // Ensure disconnected state if user is not authenticated
-      setIsConnected(false);
-      return;
-    }
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/chat/connect`;
     const ws = new WebSocket(wsUrl);
@@ -99,14 +93,11 @@ export default function ChatPage() {
     };
   }, [isUserAuthenticated]);
 
-  const getUserColor = (username) => {
-    const colors = {
-      Admin: 'text-red-400',
-      User1: 'text-blue-400',
-      User2: 'text-purple-400',
-      User3: 'text-yellow-400',
-    };
-    return colors[username] || 'text-green-400';
+  // TODO: Add random color for each user
+  const getUserColor = () => {
+    // const colors = ['red', 'blue', 'purple', 'yellow'];
+    return `text-red-400`;
+    // return `text-${colors[Math.floor(Math.random() * colors.length)]}-400`;
   };
 
   const sendMessage = (text) => {

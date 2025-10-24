@@ -1,10 +1,15 @@
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
+import { logout } from '../features/user';
 
 export default function ChatHeader({ showUsers, setShowUsers }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onLogout = () => {
+    dispatch(logout());
     axios.post('/api/user/logout').then(() => {
       navigate('/');
     });
