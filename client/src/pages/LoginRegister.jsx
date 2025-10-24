@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+import Footer from '../components/Footer';
+
 const PHASE = Object.freeze({
   IDLE: 'idle',
   LOADING: 'loading',
@@ -143,6 +145,7 @@ export default function LoginRegister() {
           </form>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
