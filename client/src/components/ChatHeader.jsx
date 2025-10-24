@@ -1,4 +1,15 @@
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 export default function ChatHeader({ showUsers, setShowUsers }) {
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    axios.post('/api/user/logout').then(() => {
+      navigate('/');
+    });
+  };
+
   return (
     <header
       className="w-full h-[8vh] min-h-[50px] p-3 bg-gray-800 rounded
@@ -11,6 +22,13 @@ export default function ChatHeader({ showUsers, setShowUsers }) {
           hover:bg-gray-700 text-lg"
       >
         {showUsers ? 'Hide Users' : 'Show Users'}
+      </button>
+      <button
+        onClick={onLogout}
+        className="border border-green-500 rounded px-3 py-1
+          hover:bg-gray-700 text-lg"
+      >
+        Logout
       </button>
     </header>
   );
