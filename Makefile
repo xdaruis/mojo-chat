@@ -4,14 +4,14 @@ all: build format lint test
 
 build:
 	cd client && pnpm install && pnpm run build
-	cd server && pnpm install && \
-	pnpm prisma migrate deploy && pnpm prisma generate
+	cd server && pnpm install
+	make prisma
 
 # Builds client and server using exact versions from lockfile
 build-clean:
 	cd client && pnpm install --frozen-lockfile && pnpm run build
-	cd server && pnpm install --frozen-lockfile && \
-	pnpm prisma migrate deploy && pnpm prisma generate
+	cd server && pnpm install --frozen-lockfile
+	make prisma
 
 format:
 	cd client && pnpm format && cd .. && cd server && pnpm format && \
@@ -23,3 +23,6 @@ lint:
 test:
 	cd server && pnpm prisma generate
 	cd server && node ./test/populateDb.js && pnpm test
+
+prisma:
+	cd server && pnpm prisma migrate deploy && pnpm prisma generate
