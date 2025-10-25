@@ -18,23 +18,32 @@ export default function ChatHeader({ showUsers, setShowUsers }) {
   return (
     <header
       className="w-full h-[8vh] min-h-[50px] p-3 bg-gray-800 rounded
-        border border-green-500 flex items-center justify-between"
+        border border-green-500 flex items-center justify-between
+          sticky top-0 z-20"
     >
-      <h1 className="text-2xl font-bold truncate"># MojoChat</h1>
-      <button
-        onClick={() => setShowUsers(!showUsers)}
-        className="lg:hidden border border-green-500 rounded px-3 py-1
-          hover:bg-gray-700 text-lg"
+      <h1
+        className="min-w-0 text-xl sm:text-2xl
+        font-bold truncate"
       >
-        {showUsers ? 'Hide Users' : 'Show Users'}
-      </button>
-      <button
-        onClick={onLogout}
-        className="border border-green-500 rounded px-3 py-1
-          hover:bg-gray-700 text-lg"
-      >
-        Logout
-      </button>
+        # MojoChat
+      </h1>
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <button
+          onClick={() => setShowUsers(!showUsers)}
+          className="lg:hidden border border-green-500 rounded px-2 py-1
+            sm:px-3 sm:py-2
+            hover:bg-gray-700 text-sm sm:text-lg whitespace-nowrap leading-none"
+        >
+          {showUsers ? 'Hide Users' : 'Show Users'}
+        </button>
+        <button
+          onClick={onLogout}
+          className="border border-green-500 rounded px-2 py-1 sm:px-3 sm:py-2
+          hover:bg-gray-700 text-sm sm:text-lg whitespace-nowrap leading-none"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 }

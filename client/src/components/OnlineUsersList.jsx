@@ -7,22 +7,26 @@ export default function OnlineUsersList({
   return (
     <aside
       className={`lg:w-[200px] lg:static lg:block ${
-        showUsers ? 'fixed inset-2 z-10' : 'hidden'
-      } bg-gray-800 rounded border border-green-500 overflow-y-auto`}
+        showUsers ? 'absolute inset-0 m-2 z-10' : 'hidden'
+      } bg-gray-800 rounded border border-green-500 overflow-y-auto shadow-lg`}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Online users"
     >
       <div
         className="flex items-center justify-between p-3 border-b
           border-green-500"
       >
-        <h2 className="text-lg font-bold">Online Users</h2>
+        <h2 className="text-base sm:text-lg font-bold">Online Users</h2>
         <button
           onClick={() => setShowUsers(false)}
-          className="lg:hidden hover:text-green-300 text-lg"
+          className="lg:hidden hover:text-green-300 text-xl"
+          aria-label="Close users panel"
         >
           ✕
         </button>
       </div>
-      <ul className="text-lg p-3">
+      <ul className="text-base sm:text-lg p-3">
         {users?.length ? (
           users.map((u) => (
             <li key={u} className="mb-1">
