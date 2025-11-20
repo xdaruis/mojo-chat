@@ -1,10 +1,11 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import Footer from '../components/Footer';
+import { login } from '../features/user';
 
 const PHASE = Object.freeze({
   IDLE: 'idle',
@@ -14,6 +15,7 @@ const PHASE = Object.freeze({
 
 export default function LoginRegister() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [username, setUsername] = useState('');
   const [authCredentials, setAuthCredentials] = useState(null);
@@ -33,6 +35,7 @@ export default function LoginRegister() {
   const tryLogin = async (credentials) => {
     try {
       await axios.post('/api/user/login', { authCredentials: credentials });
+      dispatch(login({ username: credentials.username }));
       navigate('/chat');
     } catch (err) {
       const status = err?.response?.status;
